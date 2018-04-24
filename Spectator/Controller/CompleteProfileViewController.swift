@@ -7,26 +7,29 @@
 //
 
 import UIKit
+import Firebase
 import FirebaseAuth
 import FBSDKCoreKit
 import FBSDKLoginKit
+import SVProgressHUD
 
 class CompleteProfileViewController: UIViewController {
 
     @IBOutlet weak var userAvatar: UIImageView!
-    @IBOutlet weak var welcomeLabel: UILabel!
+    @IBOutlet weak var nameField: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         if let currentUser = Auth.auth().currentUser {
-            welcomeLabel.text = "Welcome \(String(describing: currentUser.displayName))"
         }
         
         if let _ = FBSDKAccessToken.current()
         {
             fetchUserProfile()
         }
+        
+        userAvatar.makeCircle()
     }
 
     override func didReceiveMemoryWarning() {
@@ -57,7 +60,7 @@ class CompleteProfileViewController: UIViewController {
                 print("User ID is: \(String(describing: id))")
                 
                 if let userName = data["name"] {
-                    self.welcomeLabel.text = "Welcome \(userName)"
+                    self.nameField.text = "\(userName)"
                 }
                 
                 if let profilePictureObj = data["picture"] as? NSDictionary
@@ -85,16 +88,33 @@ class CompleteProfileViewController: UIViewController {
         })
     }
     
+    @IBAction func continueButtonPressed(_ sender: UIButton) {
+        
+        SVProgressHUD.show()
+        
+        let finishProfile = Auth.auth().currentUser?.createProfileChangeRequest()
+        finishProfile?.displayName = nameField.text!
+        
+        finishProfile?.commitChanges {
+            (error) in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                print("Profile changes saved successfully")
+                SVProgressHUD.dismiss()
+                self.performSegue(withIdentifier: "goToChooseTeams", sender: self)
+            }
+        }
+    }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
+
+extension UIImageView {
+    
+    func makeCircle() {
+        self.layer.cornerRadius = self.frame.width / 2
+        self.layer.masksToBounds = true
+    }
+}
+

@@ -76,7 +76,7 @@ class LoginViewController: UIViewController {
                     return
                 }
                 
-                if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "Dashboard") {
+                if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "navDashboard") {
                     UIApplication.shared.keyWindow?.rootViewController = viewController
                     self.dismiss(animated: true, completion: nil)
                 }
