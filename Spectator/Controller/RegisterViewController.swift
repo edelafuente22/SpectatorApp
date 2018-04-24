@@ -13,21 +13,69 @@ import FBSDKLoginKit
 
 class RegisterViewController: UIViewController {
 
-    @IBOutlet weak var firstNameTextField: UITextField!
-    @IBOutlet weak var lastNameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var confirmPasswordTextField: UITextField!
-        
+    @IBOutlet weak var emailPasswordCheck: UILabel!
+    
+    @IBOutlet weak var registerButton: UIButton!
+    
+    var emailValid: Bool = false
+    var passwordValid: Bool = false
+    var confirmValid: Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        emailPasswordCheck.text = ""
 
-        // Do any additional setup after loading the view.
+        registerButton.isEnabled = false
+        registerButton.alpha = 0.3
+        
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    @IBAction func emailEditingDidEnd(_ sender: UITextField) {
+        let isEmailAddressValid = isValidEmailAddress(emailAddressString: emailTextField.text!)
+        
+        if isEmailAddressValid {
+            print("Email address is valid")
+            emailValid = true
+            emailPasswordCheck.text = ""
+            checkFields()
+        } else {
+            print("Email address is not valid")
+            emailPasswordCheck.text = "Please enter a valid email address"
+        }
+    }
+    
+    @IBAction func passwordEditingDidEnd(_ sender: UITextField) {
+        let isPasswordValid = isValidPassword(passwordString: passwordTextField.text!)
+        
+        if isPasswordValid {
+            print("Password is valid")
+            emailPasswordCheck.text = ""
+            passwordValid = true
+            checkFields()
+        } else {
+            print("Password is not valid")
+            emailPasswordCheck.text = "Password must be at least 8 characters and contain 1 letter and 1 number"
+        }
+    }
+    
+    @IBAction func confirmEditingDidEnd(_ sender: UITextField) {
+        if passwordTextField.text == confirmPasswordTextField.text {
+            emailPasswordCheck.text = ""
+            confirmValid = true
+            checkFields()
+        } else {
+            print("Passwords do not match")
+            emailPasswordCheck.text = "Passwords do not match"
+        }
     }
     
     @IBAction func registerPressed(_ sender: UIButton) {
@@ -44,7 +92,7 @@ class RegisterViewController: UIViewController {
                 
                 SVProgressHUD.dismiss()
                 
-                self.performSegue(withIdentifier: "continueRegistration", sender: self)
+                self.performSegue(withIdentifier: "goToCompleteProfile", sender: self)
             }
         }
     }
@@ -78,26 +126,69 @@ class RegisterViewController: UIViewController {
                     return
                 }
                 
-                if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "Complete Profile") {
+                if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "completeProfile") {
                     UIApplication.shared.keyWindow?.rootViewController = viewController
                     self.dismiss(animated: true, completion: nil)
                 }
-//                self.performSegue(withIdentifier: "continueRegistration", sender: self)
-//                self.dismiss(animated: true, completion: nil)
                 
             })
         }
     }
     
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    func isValidEmailAddress(emailAddressString: String) -> Bool {
+        
+        var returnValue = true
+        let emailRegEx = "[A-Z0-9a-z.-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,3}"
+        
+        do {
+            let regex = try NSRegularExpression(pattern: emailRegEx)
+            let nsString = emailAddressString as NSString
+            let results = regex.matches(in: emailAddressString, range: NSRange(location: 0, length: nsString.length))
+            
+            if results.count == 0
+            {
+                returnValue = false
+            }
+            
+        } catch let error as NSError {
+            print("invalid regex: \(error.localizedDescription)")
+            returnValue = false
+        }
+        
+        return  returnValue
     }
-    */
+    
+    func isValidPassword(passwordString: String) -> Bool {
+        
+        var passwordValue = true
+        let passwordRegEx = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+        
+        do {
+            let regex = try NSRegularExpression(pattern: passwordRegEx)
+            let nsString = passwordString as NSString
+            let results = regex.matches(in: passwordString, range: NSRange(location: 0, length: nsString.length))
+            
+            if results.count == 0 {
+                
+                passwordValue = false
+            }
+            
+        } catch let error as NSError {
+            print("invalid regex: \(error.localizedDescription)")
+            passwordValue = false
+        }
+        
+        return passwordValue
+    }
+    
+    func checkFields() {
+        if emailValid == true && passwordValid == true && confirmValid == true {
+            registerButton.isEnabled = true
+            registerButton.alpha = 1.0
+        } else {
+            registerButton.isEnabled = false
+        }
+    }
 
 }

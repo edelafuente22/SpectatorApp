@@ -16,16 +16,25 @@ class LoginViewController: UIViewController {
 
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
-        
+    @IBOutlet weak var emailPasswordCheckLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        emailPasswordCheckLabel.text = ""
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    @IBAction func emailDidBeginEditing(_ sender: UITextField) {
+        self.emailPasswordCheckLabel.text = ""
+    }
+    
+    @IBAction func passwordDidBeginEditing(_ sender: UITextField) {
+        self.emailPasswordCheckLabel.text = ""
     }
     
     @IBAction func loginPressed(_ sender: UIButton) {
@@ -37,9 +46,11 @@ class LoginViewController: UIViewController {
             
             if error != nil {
                 print(error!)
+                self.emailPasswordCheckLabel.text = "Username and/or password not found"
+                SVProgressHUD.dismiss()
             } else {
                 print("Login successful")
-                
+                self.emailPasswordCheckLabel.text = ""
                 SVProgressHUD.dismiss()
                 
                 self.performSegue(withIdentifier: "goToDashboard", sender: self)

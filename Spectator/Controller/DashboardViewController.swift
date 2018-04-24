@@ -103,7 +103,7 @@ class DashboardViewController: UIViewController {
                 
                 let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Title")
                 
-                present(vc, animated: true, completion: nil)
+                present(vc, animated: false, completion: nil)
                 
             } catch let error as NSError {
                 
