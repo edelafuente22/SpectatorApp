@@ -1,0 +1,6 @@
+framework module Pods_Spectator {
+  umbrella header "Pods-Spectator-umbrella.h"
+
+  export *
+  module * { export * }
+}
